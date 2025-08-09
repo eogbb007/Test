@@ -1,32 +1,49 @@
--- Referência à parte onde o jogador encosta para ganhar o boost
-local boostPart = script.Parent
+-- Coloque este script em LocalScript (StarterPlayerScripts)
+-- Este exemplo coleta objetos chamados "Coletavel" dentro do workspace
 
--- Configurações do boost
-local speedBoost = 100 -- Velocidade aumentada
-local jumpBoost = 100 -- Força de pulo aumentada
-local boostDuration = 5 -- Duração do boost em segundos
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
--- Função que aplica o boost ao jogador
-local function onTouch(hit)
-    local character = hit.Parent
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
+local velocidade = 100 -- velocidade do voo
+local intervaloBusca = 1 -- segundos entre cada busca
 
-    if humanoid then
-        -- Salva os valores originais
-        local originalSpeed = humanoid.WalkSpeed
-        local originalJump = humanoid.JumpPower
+-- Função para voar até o item
+local function voarAte(item)
+    local distancia = (humanoidRootPart.Position - item.Position).Magnitude
+    local tempo = distancia / velocidade
 
-        -- Aplica o boost
-        humanoid.WalkSpeed = speedBoost
-        humanoid.JumpPower = jumpBoost
+    local tweenService = game:GetService("TweenService")
+    local info = TweenInfo.new(tempo, Enum.EasingStyle.Linear)
+    local objetivo = {Position = item.Position + Vector3.new(0, 5, 0)} -- voa um pouco acima
 
-        -- Espera a duração e volta ao normal
-        task.delay(boostDuration, function()
-            humanoid.WalkSpeed = originalSpeed
-            humanoid.JumpPower = originalJump
-        end)
+    local voo = tweenService:Create(humanoidRootPart, info, objetivo)
+    voo:Play()
+    voo.Completed:Wait()
+
+    -- Tenta coletar
+    if item:FindFirstChild("TouchInterest") then
+        humanoidRootPart.CFrame = CFrame.new(item.Position)
     end
 end
 
--- Conecta a função ao evento de toque
-boostPart.Touched:Connect(onTouch)
+-- Loop principal
+while true do
+    local coletaveis = workspace:GetChildren()
+    local alvo = nil
+
+    for _, obj in pairs(coletaveis) do
+        if obj:IsA("BasePart") and obj.Name == "Coletavel" then
+            alvo = obj
+            break
+        end
+    end
+
+    if alvo then
+        voarAte(alvo)
+    else
+        print("🔍 Nenhum item encontrado. Aguardando...")
+    end
+
+    wait(intervaloBusca)
+end
