@@ -1,49 +1,149 @@
--- Coloque este script em LocalScript (StarterPlayerScripts)
--- Este exemplo coleta objetos chamados "Coletavel" dentro do workspace
+--[[
+   Script para executores externos (ex: Delta)
+   Funções:
+   - Verifica se o nome do jogador é 'testeescript'
+   - Pede senha via interface
+   - Anima tela preta e agradece se senha correta
+   - Mostra opções de Coletar e Desativar
+   - Kicka se nome incorreto
+   - Só funciona com executores externos (não Roblox Studio)
+]]
 
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local allowedName = "testeescript"
+local correctPassword = "Alya sometimes hides her feelings in Russian"
 
-local velocidade = 100 -- velocidade do voo
-local intervaloBusca = 1 -- segundos entre cada busca
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
--- Função para voar até o item
-local function voarAte(item)
-    local distancia = (humanoidRootPart.Position - item.Position).Magnitude
-    local tempo = distancia / velocidade
-
-    local tweenService = game:GetService("TweenService")
-    local info = TweenInfo.new(tempo, Enum.EasingStyle.Linear)
-    local objetivo = {Position = item.Position + Vector3.new(0, 5, 0)} -- voa um pouco acima
-
-    local voo = tweenService:Create(humanoidRootPart, info, objetivo)
-    voo:Play()
-    voo.Completed:Wait()
-
-    -- Tenta coletar
-    if item:FindFirstChild("TouchInterest") then
-        humanoidRootPart.CFrame = CFrame.new(item.Position)
-    end
+if not LocalPlayer then
+    return print("Esse script só funciona em executores externos com LocalPlayer.")
 end
 
--- Loop principal
-while true do
-    local coletaveis = workspace:GetChildren()
-    local alvo = nil
+if LocalPlayer.Name ~= allowedName then
+    LocalPlayer:Kick("Você não tem permissão para usar este script.")
+    return
+end
 
-    for _, obj in pairs(coletaveis) do
-        if obj:IsA("BasePart") and obj.Name == "Coletavel" then
-            alvo = obj
-            break
-        end
+-- Interface
+local gui = Instance.new("ScreenGui")
+gui.Name = "DeltaKeyGui"
+gui.Parent = game.CoreGui
+
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 350, 0, 180)
+frame.Position = UDim2.new(0.5, -175, 0.5, -90)
+frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+frame.BorderSizePixel = 0
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.Text = "Digite a Key de acesso"
+title.TextSize = 22
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+
+local textbox = Instance.new("TextBox", frame)
+textbox.Size = UDim2.new(0.8, 0, 0, 40)
+textbox.Position = UDim2.new(0.1, 0, 0, 60)
+textbox.PlaceholderText = "Digite a Key aqui"
+textbox.TextSize = 18
+textbox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+textbox.TextColor3 = Color3.new(1, 1, 1)
+textbox.Font = Enum.Font.Gotham
+
+local confirm = Instance.new("TextButton", frame)
+confirm.Size = UDim2.new(0.8, 0, 0, 36)
+confirm.Position = UDim2.new(0.1, 0, 0, 110)
+confirm.Text = "Confirmar"
+confirm.TextSize = 18
+confirm.BackgroundColor3 = Color3.fromRGB(30, 160, 30)
+confirm.TextColor3 = Color3.new(1, 1, 1)
+confirm.Font = Enum.Font.Gotham
+
+local errorMsg = Instance.new("TextLabel", frame)
+errorMsg.Size = UDim2.new(1, 0, 0, 22)
+errorMsg.Position = UDim2.new(0, 0, 0, 150)
+errorMsg.BackgroundTransparency = 1
+errorMsg.TextColor3 = Color3.fromRGB(255, 60, 60)
+errorMsg.TextSize = 15
+errorMsg.Text = ""
+errorMsg.Font = Enum.Font.Gotham
+
+-- Tela preta + opções
+local function showSuccess()
+    frame.Visible = false
+
+    local blackScreen = Instance.new("Frame", gui)
+    blackScreen.Size = UDim2.new(1, 0, 1, 0)
+    blackScreen.BackgroundColor3 = Color3.new(0, 0, 0)
+    blackScreen.ZIndex = 10
+    blackScreen.BackgroundTransparency = 1
+
+    -- Fade in
+    for i = 1, 10 do
+        blackScreen.BackgroundTransparency = 1 - (i * 0.1)
+        wait(0.05)
     end
 
-    if alvo then
-        voarAte(alvo)
+    local thanks = Instance.new("TextLabel", blackScreen)
+    thanks.Size = UDim2.new(1, 0, 0, 60)
+    thanks.Position = UDim2.new(0, 0, 0.4, 0)
+    thanks.Text = "Obrigado por usar!\nEai"
+    thanks.TextSize = 30
+    thanks.TextColor3 = Color3.new(1, 1, 1)
+    thanks.BackgroundTransparency = 1
+    thanks.Font = Enum.Font.GothamBold
+
+    wait(2)
+    thanks.Visible = false
+
+    -- Opções
+    local optionFrame = Instance.new("Frame", gui)
+    optionFrame.Size = UDim2.new(0, 300, 0, 120)
+    optionFrame.Position = UDim2.new(0.5, -150, 0.5, -60)
+    optionFrame.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+    optionFrame.ZIndex = 11
+
+    local collectBtn = Instance.new("TextButton", optionFrame)
+    collectBtn.Size = UDim2.new(0.4, 0, 0, 50)
+    collectBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
+    collectBtn.Text = "Coletar"
+    collectBtn.TextSize = 22
+    collectBtn.BackgroundColor3 = Color3.fromRGB(30, 130, 30)
+    collectBtn.TextColor3 = Color3.new(1, 1, 1)
+    collectBtn.Font = Enum.Font.GothamBold
+
+    local disableBtn = Instance.new("TextButton", optionFrame)
+    disableBtn.Size = UDim2.new(0.4, 0, 0, 50)
+    disableBtn.Position = UDim2.new(0.55, 0, 0.2, 0)
+    disableBtn.Text = "Desativar"
+    disableBtn.TextSize = 22
+    disableBtn.BackgroundColor3 = Color3.fromRGB(160, 30, 30)
+    disableBtn.TextColor3 = Color3.new(1, 1, 1)
+    disableBtn.Font = Enum.Font.GothamBold
+
+    collectBtn.MouseButton1Click:Connect(function()
+        optionFrame.Visible = false
+        blackScreen.Visible = false
+        print("Opção coletar ativada!")
+        -- Adicione sua função de coletar aqui
+    end)
+
+    disableBtn.MouseButton1Click:Connect(function()
+        optionFrame.Visible = false
+        blackScreen.Visible = false
+        print("Opção desativar ativada!")
+        -- Adicione sua função de desativar aqui
+    end)
+end
+
+-- Checagem da senha
+confirm.MouseButton1Click:Connect(function()
+    if textbox.Text == correctPassword then
+        showSuccess()
     else
-        print("🔍 Nenhum item encontrado. Aguardando...")
+        errorMsg.Text = "Key incorreta! Tente novamente."
     end
-
-    wait(intervaloBusca)
-end
+end)
