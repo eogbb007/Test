@@ -1,0 +1,85 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local password = "gabriel11"
+
+-- Função para criar a interface de senha
+local function createPasswordGui()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "PasswordGui"
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 300, 0, 140)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -70)
+    frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    frame.BorderSizePixel = 0
+    frame.Parent = screenGui
+
+    local label = Instance.new("TextLabel")
+    label.Text = "Digite a senha para acessar o painel:"
+    label.Size = UDim2.new(1, 0, 0, 40)
+    label.Position = UDim2.new(0, 0, 0, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Font = Enum.Font.SourceSansBold
+    label.TextScaled = true
+    label.Parent = frame
+
+    local textBox = Instance.new("TextBox")
+    textBox.Size = UDim2.new(1, -40, 0, 36)
+    textBox.Position = UDim2.new(0, 20, 0, 50)
+    textBox.PlaceholderText = "Senha"
+    textBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    textBox.TextColor3 = Color3.new(1, 1, 1)
+    textBox.Font = Enum.Font.SourceSans
+    textBox.TextScaled = true
+    textBox.Parent = frame
+
+    local button = Instance.new("TextButton")
+    button.Text = "Entrar"
+    button.Size = UDim2.new(1, -40, 0, 32)
+    button.Position = UDim2.new(0, 20, 0, 95)
+    button.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextScaled = true
+    button.Parent = frame
+
+    local errorLabel = Instance.new("TextLabel")
+    errorLabel.Text = ""
+    errorLabel.Size = UDim2.new(1, 0, 0, 20)
+    errorLabel.Position = UDim2.new(0, 0, 1, -20)
+    errorLabel.BackgroundTransparency = 1
+    errorLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+    errorLabel.Font = Enum.Font.SourceSans
+    errorLabel.TextScaled = true
+    errorLabel.Parent = frame
+
+    return screenGui, frame, textBox, button, errorLabel
+end
+
+local function enableWalkSpeed()
+    player.CharacterAdded:Connect(function(character)
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.WalkSpeed = 999
+    end)
+
+    if player.Character then
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = 999
+        end
+    end
+end
+
+-- Mostra a interface de senha
+local gui, frame, textBox, button, errorLabel = createPasswordGui()
+
+button.MouseButton1Click:Connect(function()
+    if textBox.Text == password then
+        enableWalkSpeed()
+        gui:Destroy()
+    else
+        errorLabel.Text = "Senha incorreta!"
+    end
+end)
