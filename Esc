@@ -1,0 +1,16 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Aguarda o personagem carregar
+player.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.WalkSpeed = 999
+end)
+
+-- Se o personagem já estiver carregado
+if player.Character then
+    local humanoid = player.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = 999
+    end
+end
