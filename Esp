@@ -1,46 +1,34 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-  <meta charset="UTF-8">
-  <title>Controle de Velocidade</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 40px; }
-    #foto { max-width: 400px; margin: 20px auto; display: block; border-radius: 12px; }
-    #velocidade { font-size: 2em; margin: 20px; }
-    #instrucoes { margin-top: 20px; color: #555; }
-  </style>
-</head>
-<body>
-  <h1>Ajuste a Velocidade</h1>
-  <img id="foto" src="https://pin.it/pjWoR5fAE" alt="Foto">
-  <div id="velocidade">Velocidade: <span id="valor">500</span></div>
-  <div id="instrucoes">
-    Use as setas do teclado (↑ para aumentar, ↓ para diminuir) ou digite o valor.<br>
-    (Limite: 1 a 1000)
-  </div>
-  <input type="number" id="inputVelocidade" min="1" max="1000" style="font-size:1.2em;width:90px;" value="500">
-
-  <script>
-    let velocidadeAtual = 500;
-    const valorSpan = document.getElementById('valor');
-    const input = document.getElementById('inputVelocidade');
-
-    function atualizarVelocidade(val) {
-      velocidadeAtual = Math.max(1, Math.min(1000, parseInt(val) || 1));
-      valorSpan.textContent = velocidadeAtual;
-      input.value = velocidadeAtual;
+window.addEventListener('message', function(event) {
+    if (event.data.type === "open") {
+        document.body.style.display = "flex";
+        updatePlayerList();
     }
+});
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key === "ArrowUp") atualizarVelocidade(velocidadeAtual + 1);
-      if (e.key === "ArrowDown") atualizarVelocidade(velocidadeAtual - 1);
+function closeMenu() {
+    document.body.style.display = "none";
+    fetch(`https://${GetParentResourceName()}/close`, { method: 'POST' });
+}
+
+function sendAction(action) {
+    const playerId = document.getElementById("playerList").value;
+    fetch(`https://${GetParentResourceName()}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId, action })
     });
+}
 
-    input.addEventListener('input', function(e) {
-      atualizarVelocidade(e.target.value);
-    });
-
-    atualizarVelocidade(velocidadeAtual);
-  </script>
-</body>
-</html>
+function updatePlayerList() {
+    const select = document.getElementById("playerList");
+    select.innerHTML = "";
+    for (let i = 0; i < 128; i++) {
+        const name = GetPlayerName(i);
+        if (name) {
+            const option = document.createElement("option");
+            option.value = GetPlayerServerId(i);
+            option.text = `${name} (${GetPlayerServerId(i)})`;
+            select.appendChild(option);
+        }
+    }
+}
