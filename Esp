@@ -1,27 +1,20 @@
 --[[
-  Script multifunção para Roblox executores externos (ex: Delta)
-  - Interface de senha (expulsa se errar, animação se acertar, imagens)
-  - Interface de velocidade ajustável (com foto)
-  - Botão bônus: auto kick
-  Troque os IDs das imagens para as suas preferidas!
+    Script exclusivo para executores externos no Roblox (ex: Delta)
+    Funções:
+    - Interface de senha (expulsa se errar, animação se acertar)
+    - Segunda interface com comandos ;kill ;explode e campo para escolher um nome especial
+    Somente funciona em mapas com comandos de admin e usando executor externo!
 ]]
 
-local allowedName = "testeescript" -- Coloque "" para qualquer nome
-local correctPassword = "minhaSenhaSuperSecreta" -- Troque pela sua senha
-local imageSenha = "rbxassetid://1246352333" -- Goku Decal (pode trocar)
-local imageObrigado = "rbxassetid://1246352333" -- Goku Decal (pode trocar)
-local imageVelocidade = "rbxassetid://1246352333" -- Goku Decal (pode trocar)
+local senhaCorreta = "bbi" -- Troque para sua senha preferida
+local imagemSenha = "rbxassetid://1246352333" -- Troque para sua imagem
+local imagemObrigado = "rbxassetid://1246352333" -- Troque para sua imagem
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 if not LocalPlayer then
     return print("Esse script só funciona em executores externos com LocalPlayer.")
-end
-
-if allowedName ~= "" and LocalPlayer.Name ~= allowedName then
-    LocalPlayer:Kick("Você não tem permissão para usar este script.")
-    return
 end
 
 -- Interface Senha
@@ -39,12 +32,12 @@ local imgSenha = Instance.new("ImageLabel", frameSenha)
 imgSenha.Size = UDim2.new(0, 80, 0, 80)
 imgSenha.Position = UDim2.new(0.5, -40, 0, 10)
 imgSenha.BackgroundTransparency = 1
-imgSenha.Image = imageSenha
+imgSenha.Image = imagemSenha
 
 local titleSenha = Instance.new("TextLabel", frameSenha)
 titleSenha.Size = UDim2.new(1, 0, 0, 40)
 titleSenha.Position = UDim2.new(0, 0, 0, 100)
-titleSenha.Text = "Digite a Senha de acesso"
+titleSenha.Text = "Digite a senha do admin"
 titleSenha.TextSize = 22
 titleSenha.BackgroundTransparency = 1
 titleSenha.TextColor3 = Color3.new(1, 1, 1)
@@ -53,7 +46,7 @@ titleSenha.Font = Enum.Font.GothamBold
 local textboxSenha = Instance.new("TextBox", frameSenha)
 textboxSenha.Size = UDim2.new(0.8, 0, 0, 40)
 textboxSenha.Position = UDim2.new(0.1, 0, 0, 150)
-textboxSenha.PlaceholderText = "Digite a Senha aqui"
+textboxSenha.PlaceholderText = "Digite a senha aqui"
 textboxSenha.TextSize = 18
 textboxSenha.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 textboxSenha.TextColor3 = Color3.new(1, 1, 1)
@@ -100,112 +93,120 @@ local function animacaoObrigado()
     img.Size = UDim2.new(0, 120, 0, 120)
     img.Position = UDim2.new(0.5, -60, 0.4, 0)
     img.BackgroundTransparency = 1
-    img.Image = imageObrigado
+    img.Image = imagemObrigado
 
     local texto = Instance.new("TextLabel", frame)
     texto.Size = UDim2.new(1, 0, 0, 60)
     texto.Position = UDim2.new(0, 0, 0.7, 0)
-    texto.Text = "Obrigado por acertar a senha!"
+    texto.Text = "Acesso liberado!"
     texto.TextSize = 32
     texto.TextColor3 = Color3.new(1, 1, 1)
     texto.BackgroundTransparency = 1
     texto.Font = Enum.Font.GothamBold
 
-    wait(2)
+    wait(1.5)
     guiObrigado:Destroy()
 end
 
--- Interface de velocidade ajustável
-local function abrirVelocidade()
-    local guiVel = Instance.new("ScreenGui")
-    guiVel.Name = "VelocidadeGui"
-    guiVel.Parent = game.CoreGui
+-- Interface de comandos
+local function abrirComandos()
+    local guiCmd = Instance.new("ScreenGui")
+    guiCmd.Name = "ComandosGui"
+    guiCmd.Parent = game.CoreGui
 
-    local frameVel = Instance.new("Frame", guiVel)
-    frameVel.Size = UDim2.new(0, 350, 0, 230)
-    frameVel.Position = UDim2.new(0.5, -175, 0.5, -115)
-    frameVel.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
-    frameVel.BorderSizePixel = 0
+    local frameCmd = Instance.new("Frame", guiCmd)
+    frameCmd.Size = UDim2.new(0, 400, 0, 260)
+    frameCmd.Position = UDim2.new(0.5, -200, 0.5, -130)
+    frameCmd.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
+    frameCmd.BorderSizePixel = 0
 
-    local imgVel = Instance.new("ImageLabel", frameVel)
-    imgVel.Size = UDim2.new(0, 80, 0, 80)
-    imgVel.Position = UDim2.new(0.5, -40, 0, 12)
-    imgVel.BackgroundTransparency = 1
-    imgVel.Image = imageVelocidade
+    local tituloCmd = Instance.new("TextLabel", frameCmd)
+    tituloCmd.Size = UDim2.new(1, 0, 0, 40)
+    tituloCmd.Position = UDim2.new(0, 0, 0, 10)
+    tituloCmd.Text = "Comandos Exclusivos"
+    tituloCmd.TextSize = 22
+    tituloCmd.BackgroundTransparency = 1
+    tituloCmd.TextColor3 = Color3.new(1, 1, 1)
+    tituloCmd.Font = Enum.Font.GothamBold
 
-    local tituloVel = Instance.new("TextLabel", frameVel)
-    tituloVel.Size = UDim2.new(1, 0, 0, 30)
-    tituloVel.Position = UDim2.new(0, 0, 0, 100)
-    tituloVel.Text = "Ajuste sua velocidade"
-    tituloVel.TextSize = 22
-    tituloVel.BackgroundTransparency = 1
-    tituloVel.TextColor3 = Color3.new(1, 1, 1)
-    tituloVel.Font = Enum.Font.GothamBold
+    -- Nome especial
+    local labelNome = Instance.new("TextLabel", frameCmd)
+    labelNome.Size = UDim2.new(1, 0, 0, 24)
+    labelNome.Position = UDim2.new(0, 0, 0, 55)
+    labelNome.Text = "Digite o nome de uma pessoa especial:"
+    labelNome.BackgroundTransparency = 1
+    labelNome.TextColor3 = Color3.new(1, 1, 1)
+    labelNome.TextSize = 16
+    labelNome.Font = Enum.Font.Gotham
 
-    local slider = Instance.new("TextBox", frameVel)
-    slider.Size = UDim2.new(0.8, 0, 0, 40)
-    slider.Position = UDim2.new(0.1, 0, 0, 140)
-    slider.PlaceholderText = "Digite a velocidade (padrão: 16)"
-    slider.TextSize = 18
-    slider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    slider.TextColor3 = Color3.new(1, 1, 1)
-    slider.Font = Enum.Font.Gotham
+    local caixaNome = Instance.new("TextBox", frameCmd)
+    caixaNome.Size = UDim2.new(0.7, 0, 0, 32)
+    caixaNome.Position = UDim2.new(0.15, 0, 0, 80)
+    caixaNome.PlaceholderText = "Nome do player"
+    caixaNome.TextSize = 18
+    caixaNome.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    caixaNome.TextColor3 = Color3.new(1, 1, 1)
+    caixaNome.Font = Enum.Font.Gotham
 
-    local btnSet = Instance.new("TextButton", frameVel)
-    btnSet.Size = UDim2.new(0.8, 0, 0, 36)
-    btnSet.Position = UDim2.new(0.1, 0, 0, 190)
-    btnSet.Text = "Ajustar"
-    btnSet.TextSize = 18
-    btnSet.BackgroundColor3 = Color3.fromRGB(30, 160, 30)
-    btnSet.TextColor3 = Color3.new(1, 1, 1)
-    btnSet.Font = Enum.Font.Gotham
+    -- Botão ;kill
+    local btnKill = Instance.new("TextButton", frameCmd)
+    btnKill.Size = UDim2.new(0.8, 0, 0, 38)
+    btnKill.Position = UDim2.new(0.1, 0, 0, 130)
+    btnKill.Text = ";kill"
+    btnKill.TextSize = 18
+    btnKill.BackgroundColor3 = Color3.fromRGB(160, 30, 30)
+    btnKill.TextColor3 = Color3.new(1, 1, 1)
+    btnKill.Font = Enum.Font.GothamBold
 
-    btnSet.MouseButton1Click:Connect(function()
-        local speed = tonumber(slider.Text)
-        if speed and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.WalkSpeed = speed
-            btnSet.Text = "Velocidade definida!"
-        else
-            btnSet.Text = "Valor inválido!"
+    -- Botão ;explode
+    local btnExplode = Instance.new("TextButton", frameCmd)
+    btnExplode.Size = UDim2.new(0.8, 0, 0, 38)
+    btnExplode.Position = UDim2.new(0.1, 0, 0, 180)
+    btnExplode.Text = ";explode"
+    btnExplode.TextSize = 18
+    btnExplode.BackgroundColor3 = Color3.fromRGB(80, 30, 160)
+    btnExplode.TextColor3 = Color3.new(1, 1, 1)
+    btnExplode.Font = Enum.Font.GothamBold
+
+    -- Mensagem
+    local msg = Instance.new("TextLabel", frameCmd)
+    msg.Size = UDim2.new(1, 0, 0, 30)
+    msg.Position = UDim2.new(0, 0, 0, 225)
+    msg.BackgroundTransparency = 1
+    msg.TextColor3 = Color3.new(1, 1, 1)
+    msg.TextSize = 16
+    msg.Text = ""
+    msg.Font = Enum.Font.Gotham
+
+    -- Funções dos botões
+    btnKill.MouseButton1Click:Connect(function()
+        local alvo = caixaNome.Text
+        if alvo == "" then
+            msg.Text = "Preencha o nome!"
+            return
         end
-        wait(1)
-        btnSet.Text = "Ajustar"
+        game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(";kill " .. alvo, "All")
+        msg.Text = "Comando ;kill enviado para " .. alvo
     end)
-end
 
--- Botão bônus de auto kick
-local function abrirAutoKick()
-    local guiKick = Instance.new("ScreenGui")
-    guiKick.Name = "KickGui"
-    guiKick.Parent = game.CoreGui
-
-    local frameKick = Instance.new("Frame", guiKick)
-    frameKick.Size = UDim2.new(0, 300, 0, 100)
-    frameKick.Position = UDim2.new(0.5, -150, 0.5, -50)
-    frameKick.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
-    frameKick.BorderSizePixel = 0
-
-    local btnKick = Instance.new("TextButton", frameKick)
-    btnKick.Size = UDim2.new(0.8, 0, 0, 60)
-    btnKick.Position = UDim2.new(0.1, 0, 0.2, 0)
-    btnKick.Text = "Auto Kick (Clique para ser expulso)"
-    btnKick.TextSize = 18
-    btnKick.BackgroundColor3 = Color3.fromRGB(160, 30, 30)
-    btnKick.TextColor3 = Color3.new(1, 1, 1)
-    btnKick.Font = Enum.Font.GothamBold
-
-    btnKick.MouseButton1Click:Connect(function()
-        LocalPlayer:Kick("Expulso pelo Auto Kick!")
+    btnExplode.MouseButton1Click:Connect(function()
+        local alvo = caixaNome.Text
+        if alvo == "" then
+            msg.Text = "Preencha o nome!"
+            return
+        end
+        game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(";explode " .. alvo, "All")
+        msg.Text = "Comando ;explode enviado para " .. alvo
     end)
 end
 
 -- Checagem senha
 confirmSenha.MouseButton1Click:Connect(function()
-    if textboxSenha.Text == correctPassword then
+    if textboxSenha.Text == senhaCorreta then
         animacaoObrigado()
         wait(0.5)
-        abrirVelocidade()
-        abrirAutoKick()
+        guiSenha:Destroy()
+        abrirComandos()
     else
         errorSenha.Text = "Senha incorreta! Você será expulso..."
         wait(1)
