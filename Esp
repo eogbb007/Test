@@ -1,215 +1,178 @@
---[[
-    Script exclusivo para executores externos no Roblox (ex: Delta)
-    Funções:
-    - Interface de senha (expulsa se errar, animação se acertar)
-    - Segunda interface com comandos ;kill ;explode e campo para escolher um nome especial
-    Somente funciona em mapas com comandos de admin e usando executor externo!
-]]
+-- AdminCommands.lua
+-- Interface de comandos de admin para Roblox
 
-local senhaCorreta = "bbi" -- Troque para sua senha preferida
-local imagemSenha = "rbxassetid://1246352333" -- Troque para sua imagem
-local imagemObrigado = "rbxassetid://1246352333" -- Troque para sua imagem
+local player = game.Players.LocalPlayer
+local players = game:GetService("Players")
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+-- Função para criar a interface
+local function createAdminGui()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AdminCommandGui"
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+    
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 350, 0, 300)
+    frame.Position = UDim2.new(0.5, -175, 0.5, -150)
+    frame.BackgroundTransparency = 0.5 -- 50% transparência
+    frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    frame.Parent = screenGui
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Comandos Admin"
+    title.TextColor3 = Color3.fromRGB(0, 0, 0)
+    title.TextTransparency = 0.25 -- 75% visível
+    title.Font = Enum.Font.SourceSansBold
+    title.TextSize = 28
+    title.Parent = frame
+    
+    local playerList = Instance.new("ScrollingFrame")
+    playerList.Size = UDim2.new(1, -20, 0, 120)
+    playerList.Position = UDim2.new(0, 10, 0, 50)
+    playerList.BackgroundTransparency = 1
+    playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
+    playerList.Parent = frame
+    
+    -- Botão para "Todos"
+    local allButton = Instance.new("TextButton")
+    allButton.Size = UDim2.new(1, -20, 0, 30)
+    allButton.Position = UDim2.new(0, 10, 0, 180)
+    allButton.Text = "Todos"
+    allButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    allButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    allButton.TextTransparency = 0.25
+    allButton.Font = Enum.Font.SourceSansBold
+    allButton.TextSize = 24
+    allButton.Parent = frame
+    
+    local commandBox = Instance.new("TextBox")
+    commandBox.Size = UDim2.new(1, -20, 0, 30)
+    commandBox.Position = UDim2.new(0, 10, 0, 220)
+    commandBox.PlaceholderText = "Digite :kill, :explode, ;kill, ;explode"
+    commandBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    commandBox.TextTransparency = 0.25
+    commandBox.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    commandBox.BackgroundTransparency = 0.25
+    commandBox.Font = Enum.Font.SourceSans
+    commandBox.TextSize = 18
+    commandBox.Parent = frame
+    
+    local okButton = Instance.new("TextButton")
+    okButton.Size = UDim2.new(0.5, -15, 0, 30)
+    okButton.Position = UDim2.new(0.5, 5, 0, 260)
+    okButton.Text = "OK"
+    okButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    okButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+    okButton.TextTransparency = 0.25
+    okButton.Font = Enum.Font.SourceSansBold
+    okButton.TextSize = 22
+    okButton.Parent = frame
 
-if not LocalPlayer then
-    return print("Esse script só funciona em executores externos com LocalPlayer.")
-end
+    -- Lista de jogadores
+    local selectedPlayer = nil
+    local playerButtons = {}
 
--- Interface Senha
-local guiSenha = Instance.new("ScreenGui")
-guiSenha.Name = "SenhaGui"
-guiSenha.Parent = game.CoreGui
-
-local frameSenha = Instance.new("Frame", guiSenha)
-frameSenha.Size = UDim2.new(0, 350, 0, 250)
-frameSenha.Position = UDim2.new(0.5, -175, 0.5, -125)
-frameSenha.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-frameSenha.BorderSizePixel = 0
-
-local imgSenha = Instance.new("ImageLabel", frameSenha)
-imgSenha.Size = UDim2.new(0, 80, 0, 80)
-imgSenha.Position = UDim2.new(0.5, -40, 0, 10)
-imgSenha.BackgroundTransparency = 1
-imgSenha.Image = imagemSenha
-
-local titleSenha = Instance.new("TextLabel", frameSenha)
-titleSenha.Size = UDim2.new(1, 0, 0, 40)
-titleSenha.Position = UDim2.new(0, 0, 0, 100)
-titleSenha.Text = "Digite a senha do admin"
-titleSenha.TextSize = 22
-titleSenha.BackgroundTransparency = 1
-titleSenha.TextColor3 = Color3.new(1, 1, 1)
-titleSenha.Font = Enum.Font.GothamBold
-
-local textboxSenha = Instance.new("TextBox", frameSenha)
-textboxSenha.Size = UDim2.new(0.8, 0, 0, 40)
-textboxSenha.Position = UDim2.new(0.1, 0, 0, 150)
-textboxSenha.PlaceholderText = "Digite a senha aqui"
-textboxSenha.TextSize = 18
-textboxSenha.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-textboxSenha.TextColor3 = Color3.new(1, 1, 1)
-textboxSenha.Font = Enum.Font.Gotham
-
-local confirmSenha = Instance.new("TextButton", frameSenha)
-confirmSenha.Size = UDim2.new(0.8, 0, 0, 36)
-confirmSenha.Position = UDim2.new(0.1, 0, 0, 200)
-confirmSenha.Text = "Confirmar"
-confirmSenha.TextSize = 18
-confirmSenha.BackgroundColor3 = Color3.fromRGB(30, 160, 30)
-confirmSenha.TextColor3 = Color3.new(1, 1, 1)
-confirmSenha.Font = Enum.Font.Gotham
-
-local errorSenha = Instance.new("TextLabel", frameSenha)
-errorSenha.Size = UDim2.new(1, 0, 0, 22)
-errorSenha.Position = UDim2.new(0, 0, 0, 230)
-errorSenha.BackgroundTransparency = 1
-errorSenha.TextColor3 = Color3.fromRGB(255, 60, 60)
-errorSenha.TextSize = 15
-errorSenha.Text = ""
-errorSenha.Font = Enum.Font.Gotham
-
--- Função animação obrigado
-local function animacaoObrigado()
-    frameSenha.Visible = false
-
-    local guiObrigado = Instance.new("ScreenGui")
-    guiObrigado.Name = "ObrigadoGui"
-    guiObrigado.Parent = game.CoreGui
-
-    local frame = Instance.new("Frame", guiObrigado)
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.Position = UDim2.new(0, 0, 0, 0)
-    frame.BackgroundColor3 = Color3.new(0, 0, 0)
-    frame.BackgroundTransparency = 1
-
-    for i = 1, 10 do
-        frame.BackgroundTransparency = 1 - (i * 0.1)
-        wait(0.05)
+    local function refreshPlayers()
+        for i, btn in ipairs(playerButtons) do
+            btn:Destroy()
+        end
+        playerButtons = {}
+        local y = 0
+        for _, p in ipairs(players:GetPlayers()) do
+            if p ~= player then
+                local btn = Instance.new("TextButton")
+                btn.Size = UDim2.new(1, 0, 0, 30)
+                btn.Position = UDim2.new(0, 0, 0, y)
+                btn.Text = p.Name
+                btn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                btn.TextColor3 = Color3.fromRGB(0, 0, 0)
+                btn.TextTransparency = 0.25
+                btn.Font = Enum.Font.SourceSansBold
+                btn.TextSize = 20
+                btn.Parent = playerList
+                btn.MouseButton1Click:Connect(function()
+                    selectedPlayer = p
+                    for _, b in ipairs(playerButtons) do
+                        b.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+                    end
+                    btn.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                end)
+                table.insert(playerButtons, btn)
+                y = y + 35
+            end
+        end
+        playerList.CanvasSize = UDim2.new(0, 0, 0, y)
     end
 
-    local img = Instance.new("ImageLabel", frame)
-    img.Size = UDim2.new(0, 120, 0, 120)
-    img.Position = UDim2.new(0.5, -60, 0.4, 0)
-    img.BackgroundTransparency = 1
-    img.Image = imagemObrigado
+    refreshPlayers()
+    players.PlayerAdded:Connect(refreshPlayers)
+    players.PlayerRemoving:Connect(refreshPlayers)
 
-    local texto = Instance.new("TextLabel", frame)
-    texto.Size = UDim2.new(1, 0, 0, 60)
-    texto.Position = UDim2.new(0, 0, 0.7, 0)
-    texto.Text = "Acesso liberado!"
-    texto.TextSize = 32
-    texto.TextColor3 = Color3.new(1, 1, 1)
-    texto.BackgroundTransparency = 1
-    texto.Font = Enum.Font.GothamBold
-
-    wait(1.5)
-    guiObrigado:Destroy()
-end
-
--- Interface de comandos
-local function abrirComandos()
-    local guiCmd = Instance.new("ScreenGui")
-    guiCmd.Name = "ComandosGui"
-    guiCmd.Parent = game.CoreGui
-
-    local frameCmd = Instance.new("Frame", guiCmd)
-    frameCmd.Size = UDim2.new(0, 400, 0, 260)
-    frameCmd.Position = UDim2.new(0.5, -200, 0.5, -130)
-    frameCmd.BackgroundColor3 = Color3.fromRGB(38, 38, 38)
-    frameCmd.BorderSizePixel = 0
-
-    local tituloCmd = Instance.new("TextLabel", frameCmd)
-    tituloCmd.Size = UDim2.new(1, 0, 0, 40)
-    tituloCmd.Position = UDim2.new(0, 0, 0, 10)
-    tituloCmd.Text = "Comandos Exclusivos"
-    tituloCmd.TextSize = 22
-    tituloCmd.BackgroundTransparency = 1
-    tituloCmd.TextColor3 = Color3.new(1, 1, 1)
-    tituloCmd.Font = Enum.Font.GothamBold
-
-    -- Nome especial
-    local labelNome = Instance.new("TextLabel", frameCmd)
-    labelNome.Size = UDim2.new(1, 0, 0, 24)
-    labelNome.Position = UDim2.new(0, 0, 0, 55)
-    labelNome.Text = "Digite o nome de uma pessoa especial:"
-    labelNome.BackgroundTransparency = 1
-    labelNome.TextColor3 = Color3.new(1, 1, 1)
-    labelNome.TextSize = 16
-    labelNome.Font = Enum.Font.Gotham
-
-    local caixaNome = Instance.new("TextBox", frameCmd)
-    caixaNome.Size = UDim2.new(0.7, 0, 0, 32)
-    caixaNome.Position = UDim2.new(0.15, 0, 0, 80)
-    caixaNome.PlaceholderText = "Nome do player"
-    caixaNome.TextSize = 18
-    caixaNome.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    caixaNome.TextColor3 = Color3.new(1, 1, 1)
-    caixaNome.Font = Enum.Font.Gotham
-
-    -- Botão ;kill
-    local btnKill = Instance.new("TextButton", frameCmd)
-    btnKill.Size = UDim2.new(0.8, 0, 0, 38)
-    btnKill.Position = UDim2.new(0.1, 0, 0, 130)
-    btnKill.Text = ";kill"
-    btnKill.TextSize = 18
-    btnKill.BackgroundColor3 = Color3.fromRGB(160, 30, 30)
-    btnKill.TextColor3 = Color3.new(1, 1, 1)
-    btnKill.Font = Enum.Font.GothamBold
-
-    -- Botão ;explode
-    local btnExplode = Instance.new("TextButton", frameCmd)
-    btnExplode.Size = UDim2.new(0.8, 0, 0, 38)
-    btnExplode.Position = UDim2.new(0.1, 0, 0, 180)
-    btnExplode.Text = ";explode"
-    btnExplode.TextSize = 18
-    btnExplode.BackgroundColor3 = Color3.fromRGB(80, 30, 160)
-    btnExplode.TextColor3 = Color3.new(1, 1, 1)
-    btnExplode.Font = Enum.Font.GothamBold
-
-    -- Mensagem
-    local msg = Instance.new("TextLabel", frameCmd)
-    msg.Size = UDim2.new(1, 0, 0, 30)
-    msg.Position = UDim2.new(0, 0, 0, 225)
-    msg.BackgroundTransparency = 1
-    msg.TextColor3 = Color3.new(1, 1, 1)
-    msg.TextSize = 16
-    msg.Text = ""
-    msg.Font = Enum.Font.Gotham
-
-    -- Funções dos botões
-    btnKill.MouseButton1Click:Connect(function()
-        local alvo = caixaNome.Text
-        if alvo == "" then
-            msg.Text = "Preencha o nome!"
-            return
+    -- Função de execução de comando
+    local function executeCommand(targets, command)
+        for _, target in ipairs(targets) do
+            if command == ":kill" or command == ";kill" then
+                local char = target.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    char.Humanoid.Health = 0
+                end
+            elseif command == ":explode" or command == ";explode" then
+                local char = target.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    local explosion = Instance.new("Explosion")
+                    explosion.Position = char.HumanoidRootPart.Position
+                    explosion.BlastRadius = 10
+                    explosion.Parent = workspace
+                end
+            end
         end
-        game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(";kill " .. alvo, "All")
-        msg.Text = "Comando ;kill enviado para " .. alvo
+    end
+
+    -- Botão OK para aplicar comando
+    okButton.MouseButton1Click:Connect(function()
+        local cmd = commandBox.Text:lower()
+        if cmd == ":kill" or cmd == ";kill" or cmd == ":explode" or cmd == ";explode" then
+            if selectedPlayer then
+                executeCommand({selectedPlayer}, cmd)
+            else
+                print("Selecione um jogador!")
+            end
+        elseif cmd == ":kill todos" or cmd == ";kill todos" or cmd == ":explode todos" or cmd == ";explode todos" then
+            local allPlayers = {}
+            for _, p in ipairs(players:GetPlayers()) do
+                if p ~= player then
+                    table.insert(allPlayers, p)
+                end
+            end
+            executeCommand(allPlayers, cmd:match("kill") and ":kill" or ":explode")
+        else
+            print("Comando inválido.")
+        end
     end)
 
-    btnExplode.MouseButton1Click:Connect(function()
-        local alvo = caixaNome.Text
-        if alvo == "" then
-            msg.Text = "Preencha o nome!"
-            return
+    -- Botão "Todos"
+    allButton.MouseButton1Click:Connect(function()
+        selectedPlayer = nil
+        for _, b in ipairs(playerButtons) do
+            b.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
         end
-        game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(";explode " .. alvo, "All")
-        msg.Text = "Comando ;explode enviado para " .. alvo
     end)
 end
 
--- Checagem senha
-confirmSenha.MouseButton1Click:Connect(function()
-    if textboxSenha.Text == senhaCorreta then
-        animacaoObrigado()
-        wait(0.5)
-        guiSenha:Destroy()
-        abrirComandos()
-    else
-        errorSenha.Text = "Senha incorreta! Você será expulso..."
-        wait(1)
-        LocalPlayer:Kick("Senha incorreta!")
+-- Executa apenas se for admin (adicione sua lógica de verificação de admin aqui)
+local function isAdmin()
+    -- Exemplo: coloque seu nome
+    local admins = { "SeuNomeAqui", "OutroAdmin" }
+    for _, name in ipairs(admins) do
+        if player.Name == name then
+            return true
+        end
     end
-end)
+    return false
+end
+
+if isAdmin() then
+    createAdminGui()
+end
