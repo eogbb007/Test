@@ -1,34 +1,32 @@
-window.addEventListener('message', function(event) {
-    if (event.data.type === "open") {
-        document.body.style.display = "flex";
-        updatePlayerList();
-    }
-});
+-- Referência à parte onde o jogador encosta para ganhar o boost
+local boostPart = script.Parent
 
-function closeMenu() {
-    document.body.style.display = "none";
-    fetch(`https://${GetParentResourceName()}/close`, { method: 'POST' });
-}
+-- Configurações do boost
+local speedBoost = 100 -- Velocidade aumentada
+local jumpBoost = 100 -- Força de pulo aumentada
+local boostDuration = 5 -- Duração do boost em segundos
 
-function sendAction(action) {
-    const playerId = document.getElementById("playerList").value;
-    fetch(`https://${GetParentResourceName()}/action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, action })
-    });
-}
+-- Função que aplica o boost ao jogador
+local function onTouch(hit)
+    local character = hit.Parent
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
 
-function updatePlayerList() {
-    const select = document.getElementById("playerList");
-    select.innerHTML = "";
-    for (let i = 0; i < 128; i++) {
-        const name = GetPlayerName(i);
-        if (name) {
-            const option = document.createElement("option");
-            option.value = GetPlayerServerId(i);
-            option.text = `${name} (${GetPlayerServerId(i)})`;
-            select.appendChild(option);
-        }
-    }
-}
+    if humanoid then
+        -- Salva os valores originais
+        local originalSpeed = humanoid.WalkSpeed
+        local originalJump = humanoid.JumpPower
+
+        -- Aplica o boost
+        humanoid.WalkSpeed = speedBoost
+        humanoid.JumpPower = jumpBoost
+
+        -- Espera a duração e volta ao normal
+        task.delay(boostDuration, function()
+            humanoid.WalkSpeed = originalSpeed
+            humanoid.JumpPower = originalJump
+        end)
+    end
+end
+
+-- Conecta a função ao evento de toque
+boostPart.Touched:Connect(onTouch)
